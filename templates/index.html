@@ -3,31 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <title>Chatbot SENAI</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        #chat-box { height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; }
+        .user { background: #e3f2fd; padding: 5px; margin: 5px 0; }
+        .bot { background: #f1f1f1; padding: 5px; margin: 5px 0; }
+        .input-area { display: flex; }
+        #user-input { flex-grow: 1; padding: 8px; }
+        button { padding: 8px 15px; }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Chatbot de Cursos</h1>
+    <h1>Chatbot SENAI</h1>
 
-        <div class="chat-container">
-            <div id="chat-box"></div>
-            <div class="input-area">
-                <select id="course-select">
-                    {% for curso in cursos %}
-                        <option value="{{ curso }}">{{ curso }}</option>
-                    {% endfor %}
-                </select>
-                <input type="text" id="user-input" placeholder="Digite sua pergunta...">
-                <button onclick="sendQuestion()">Enviar</button>
-            </div>
-        </div>
+    <div id="chat-box"></div>
 
-        <div class="debug-container">
-            <h2>Dados de Debug</h2>
-            <pre id="debug-data"></pre>
-        </div>
+    <div class="input-area">
+        <input type="text" id="user-input" placeholder="Digite sua pergunta...">
+        <button onclick="sendQuestion()">Enviar</button>
     </div>
 
-    <script src="/static/script.js"></script>
+    <script>
+        async function sendQuestion() {
+            const input = document.getElementById('user-input');
+            const question = input.value.trim();
+            if (!question) return;
+
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML += `<div class="user">Você: ${question}</div>`;
+            input.value = '';
+
+            try {
+                const response = await fetch('/ask', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question })
+                });
+
+                const data = await response.json();
+                chatBox.innerHTML += `<div class="bot">Bot: ${data.response}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+            } catch (error) {
+                chatBox.innerHTML += `<div class="bot">Erro: ${error.message}</div>`;
+            }
+        }
+
+        // Enviar com Enter
+        document.getElementById('user-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendQuestion();
+        });
+    </script>
 </body>
 </html>

@@ -1,34 +1,30 @@
 from flask import Flask, request, jsonify, render_template
-from utils import process_pdfs, ask_question
+from utils import process_all_courses, ask_question
 import os
 
 app = Flask(__name__)
 app.config['PDFS_DIR'] = 'pdfs'
 
-# Processar PDFs ao iniciar
-COURSE_INDICES = process_pdfs(app.config['PDFS_DIR'])
+# Processar todos os cursos ao iniciar
+GLOBAL_INDEX = process_all_courses(app.config['PDFS_DIR'])
 
 
 @app.route('/')
 def home():
-    cursos = list(COURSE_INDICES.keys())
-    return render_template('index.html', cursos=cursos)
+    return render_template('index.html')
 
 
 @app.route('/ask', methods=['POST'])
 def ask():
     data = request.json
-    question = data['question']
-    course_name = data['course']
+    question = data.get('question', '')
 
-    if course_name not in COURSE_INDICES:
-        return jsonify({"error": "Curso não encontrado!"}), 404
+    response = ask_question(
+        question=question,
+        global_index=GLOBAL_INDEX
+    )
 
-    response, debug_data = ask_question(question, course_name, COURSE_INDICES)
-    return jsonify({
-        "response": response,
-        "debug": debug_data
-    })
+    return jsonify({"response": response})
 
 
 if __name__ == '__main__':
