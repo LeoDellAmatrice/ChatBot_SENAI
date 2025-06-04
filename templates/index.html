@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Chatbot SENAI</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Chatbot de Cursos</h1>
+
+        <div class="chat-container">
+            <div id="chat-box"></div>
+            <div class="input-area">
+                <select id="course-select">
+                    {% for curso in cursos %}
+                        <option value="{{ curso }}">{{ curso }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" id="user-input" placeholder="Digite sua pergunta...">
+                <button onclick="sendQuestion()">Enviar</button>
+            </div>
+        </div>
+
+        <div class="debug-container">
+            <h2>Dados de Debug</h2>
+            <pre id="debug-data"></pre>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
